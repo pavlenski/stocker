@@ -9,7 +9,10 @@ defmodule StockerApiWeb.Router do
     pipe_through :api
 
     get "/healthcheck", HealthCheckController, :healthcheck
-    get "/dummy", DummyController, :dummy_response
+
+    post "/stocks", StockController, :create
+    patch "/stocks/:id", StockController, :update
+    delete "/stocks/:id", StockController, :delete
   end
 
   # Enable Swoosh mailbox preview in development
