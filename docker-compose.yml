@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: "." 
+    ports:
+      - "4000:4000"
+    depends_on:
+      - "postgres"
+    tty: true
+    stdin_open: true
+    volumes:
+      - ".:/app"
+
+  postgres:
+    image: postgres:15
+    ports:
+    - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stocker_api_dev
+
+  adminer:
+    image: adminer
+    restart: "no"
+    environment:
+      UPLOAD: 512M
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - 8090:8080
