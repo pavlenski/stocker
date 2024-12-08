@@ -5,6 +5,10 @@ function reset {
     docker compose run app mix ecto.reset
 }
 
+function deps.get {
+    docker compose run app mix deps.get
+}
+
 function help {
   printf "%s <task>\n\nTasks:\n" "${0}"
 
