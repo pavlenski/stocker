@@ -10,6 +10,7 @@ defmodule StockerApiWeb.Router do
 
     get "/healthcheck", HealthCheckController, :healthcheck
 
+    get "/stocks", StockController, :index
     post "/stocks", StockController, :create
     patch "/stocks/:id", StockController, :update
     delete "/stocks/:id", StockController, :delete
