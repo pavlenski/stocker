@@ -2,6 +2,20 @@ defmodule StockerApi.Stocks do
   alias StockerApi.Repo
   alias StockerApi.Stocks.Stock
 
+  import Ecto.Query
+
+  def list_stocks() do
+    query = from(stock in Stock)
+
+    case Repo.all(query) do
+      {:error, Ecto.QueryError = error} ->
+        {:error, error}
+
+      stocks ->
+        {:ok, stocks}
+    end
+  end
+
   def find_by_id(stock_id) do
     case Repo.get(Stock, stock_id) do
       nil ->
