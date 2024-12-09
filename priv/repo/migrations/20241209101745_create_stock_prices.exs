@@ -17,5 +17,7 @@ defmodule StockerApi.Repo.Migrations.CreateStockPrices do
 
       timestamps()
     end
+
+    create unique_index(:stock_prices, [:stock_id, :date])
   end
 end
