@@ -12,7 +12,10 @@ defmodule StockerApi.Repo.Migrations.CreateStockPrices do
             :stocks,
             type: :binary_id,
             on_delete: :delete_all
-          )
+          ),
+          null: false
+
+      timestamps()
     end
   end
 end
