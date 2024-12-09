@@ -6,6 +6,14 @@ defmodule StockerApiWeb.StockController do
 
   action_fallback ErrorFallbackController
 
+  def index(conn, _params) do
+    with {:ok, stocks} <- Stocks.list_stocks() do
+      conn
+      |> put_status(:ok)
+      |> json(%{stocks: stocks})
+    end
+  end
+
   def create(conn, %{"stock" => stock} = _params) do
     with {:ok, stock} <- Stocks.create_stock(stock) do
       conn
