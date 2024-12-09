@@ -14,6 +14,8 @@ defmodule StockerApiWeb.Router do
     post "/stocks", StockController, :create
     patch "/stocks/:id", StockController, :update
     delete "/stocks/:id", StockController, :delete
+
+    post "/stocks/:id/import/csv", StockPriceImportController, :import_csv
   end
 
   # Enable Swoosh mailbox preview in development
