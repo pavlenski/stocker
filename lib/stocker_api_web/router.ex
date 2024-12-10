@@ -15,6 +15,8 @@ defmodule StockerApiWeb.Router do
     patch "/stocks/:id", StockController, :update
     delete "/stocks/:id", StockController, :delete
 
+    get "/stocks/:ticker/trade-options", TradeOptionsController, :trade_options
+
     post "/stocks/:id/import/csv", StockPriceImportController, :import_csv
   end
 

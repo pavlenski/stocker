@@ -3,7 +3,7 @@ defmodule StockerApi.StockPrices.StockPrice do
 
   alias StockerApi.Stocks.Stock
 
-  @derive {Jason.Encoder, except: [:__meta__]}
+  @derive {Jason.Encoder, except: [:__meta__, :stock]}
   schema "stock_prices" do
     field :close, :decimal
     field :date, :date

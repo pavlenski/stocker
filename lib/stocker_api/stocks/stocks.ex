@@ -16,6 +16,20 @@ defmodule StockerApi.Stocks do
     end
   end
 
+  def find_by_ticker(ticker) when is_binary(ticker) do
+    ticker = String.upcase(ticker)
+
+    case Repo.get_by(Stock, ticker: ticker) do
+      nil ->
+        {:error, "no stock with ticker '#{ticker}' found"}
+
+      stock ->
+        {:ok, stock}
+    end
+  end
+
+  def find_by_ticker(_ticker), do: {:error, "ticker must be a string"}
+
   def find_by_id(stock_id) do
     case Repo.get(Stock, stock_id) do
       nil ->
