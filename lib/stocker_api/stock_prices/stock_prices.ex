@@ -32,68 +32,94 @@ defmodule StockerApi.StockPrices do
   end
 
   def calculate_trading_options(stock_prices, date_ranges) do
+    # stock price range filtering
     former_stock_prices =
       Enum.filter(stock_prices, fn sp ->
-        sp.date >= date_ranges.former_date_from and sp.date <= date_ranges.former_date_to
+        from = date_ranges.former_date_from
+        to = date_ranges.former_date_to
+
+        (Date.after?(sp.date, from) or Date.compare(sp.date, from) == :eq) and
+          (Date.before?(sp.date, to) or Date.compare(sp.date, to) == :eq)
       end)
 
     current_stock_prices =
       Enum.filter(stock_prices, fn sp ->
-        sp.date >= date_ranges.current_date_from and sp.date <= date_ranges.current_date_to
+        from = date_ranges.current_date_from
+        to = date_ranges.current_date_to
+
+        (Date.after?(sp.date, from) or Date.compare(sp.date, from) == :eq) and
+          (Date.before?(sp.date, to) or Date.compare(sp.date, to) == :eq)
       end)
 
     latter_stock_prices =
       Enum.filter(stock_prices, fn sp ->
-        sp.date >= date_ranges.latter_date_from and sp.date <= date_ranges.latter_date_to
+        from = date_ranges.latter_date_from
+        to = date_ranges.latter_date_to
+
+        (Date.after?(sp.date, from) or Date.compare(sp.date, from) == :eq) and
+          (Date.before?(sp.date, to) or Date.compare(sp.date, to) == :eq)
       end)
 
-    former_trading_options =
-      case Enum.empty?(former_stock_prices) do
-        true ->
-          "No data for former range"
+    # queuing up trade options (single & multi) to be calculated asynchronously
+    async_task_list = [
+      Task.async(fn ->
+        async_trading_options_for_range(
+          former_stock_prices,
+          date_ranges.former_date_from,
+          date_ranges.former_date_to,
+          "former"
+        )
+      end),
+      Task.async(fn ->
+        async_trading_options_for_range(
+          current_stock_prices,
+          date_ranges.current_date_from,
+          date_ranges.current_date_to,
+          "current"
+        )
+      end),
+      Task.async(fn ->
+        async_trading_options_for_range(
+          latter_stock_prices,
+          date_ranges.latter_date_from,
+          date_ranges.latter_date_to,
+          "latter"
+        )
+      end)
+    ]
 
-        false ->
-          %{
-            date_from: date_ranges.former_date_from,
-            date_to: date_ranges.former_date_to,
-            single_trade: calculate_single_trade_profit(former_stock_prices),
-            multi_trade: calculate_multi_trade_profit(former_stock_prices)
-          }
-      end
+    trading_option_tasks = Task.await_many(async_task_list)
 
-    current_trading_options =
-      case Enum.empty?(current_stock_prices) do
-        true ->
-          "No data for current range"
-
-        false ->
-          %{
-            date_from: date_ranges.current_date_from,
-            date_to: date_ranges.current_date_to,
-            single_trade: calculate_single_trade_profit(current_stock_prices),
-            multi_trade: calculate_multi_trade_profit(current_stock_prices)
-          }
-      end
-
-    latter_trading_options =
-      case Enum.empty?(latter_stock_prices) do
-        true ->
-          "No data for current range"
-
-        false ->
-          %{
-            date_from: date_ranges.latter_date_from,
-            date_to: date_ranges.latter_date_to,
-            single_trade: calculate_single_trade_profit(latter_stock_prices),
-            multi_trade: calculate_multi_trade_profit(latter_stock_prices)
-          }
-      end
+    # reduce calculations into a single response map
+    response_map =
+      Enum.reduce(trading_option_tasks, %{}, fn {range_type, response}, acc ->
+        Map.put_new(acc, range_type, response)
+      end)
 
     %{
-      former: former_trading_options,
-      current: current_trading_options,
-      latter: latter_trading_options
+      former: response_map["former"],
+      current: response_map["current"],
+      latter: response_map["latter"]
     }
+  end
+
+  # returns a {range_type, response} tuple, response being either a message or a map with single & multi-trade calculations
+  defp async_trading_options_for_range(ranged_stock_prices, date_from, date_to, range_type) do
+    case Enum.empty?(ranged_stock_prices) do
+      true ->
+        {range_type, "No data for #{range_type} range"}
+
+      false ->
+        {
+          range_type,
+          %{
+            date_from: date_from,
+            date_to: date_to,
+            single_trade: calculate_single_trade_profit(ranged_stock_prices),
+            multi_trade: calculate_multi_trade_profit(ranged_stock_prices)
+          }
+        }
+    end
   end
 
   defp calculate_single_trade_profit(stock_prices) do
@@ -103,7 +129,7 @@ defmodule StockerApi.StockPrices do
     # equaling in the final result once populated
     acc =
       %{
-        max_profit: 0,
+        max_profit: Decimal.new(0),
         buy_date: first_stock_price.date,
         buy_date_close: first_stock_price.close,
         # maybe set these to first stock price fields as well
@@ -128,7 +154,6 @@ defmodule StockerApi.StockPrices do
 
         profit = Decimal.sub(stock_price.close, new_min_close)
 
-        # only in case our newly calculated profit is higher, shall we update the accumulator
         if profit > acc.max_profit do
           %{
             max_profit: profit,
@@ -138,7 +163,13 @@ defmodule StockerApi.StockPrices do
             sell_date_close: stock_price.close
           }
         else
-          acc
+          %{
+            max_profit: acc.max_profit,
+            buy_date: new_min_date,
+            buy_date_close: new_min_close,
+            sell_date: acc.sell_date,
+            sell_date_close: acc.sell_date
+          }
         end
       end
     )
