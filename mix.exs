@@ -45,7 +45,8 @@ defmodule StockerApi.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:csv, "~> 3.0"},
-      {:unzip, "~> 0.12.0"}
+      {:unzip, "~> 0.12.0"},
+      {:ex_machina, "~> 2.8.0"}
     ]
   end
 

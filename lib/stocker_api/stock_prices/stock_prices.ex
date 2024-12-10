@@ -168,8 +168,30 @@ defmodule StockerApi.StockPrices do
             buy_date: new_min_date,
             buy_date_close: new_min_close,
             sell_date: acc.sell_date,
-            sell_date_close: acc.sell_date
+            sell_date_close: acc.sell_date_close
           }
+        end
+      end
+    )
+  end
+
+  defp temp(stock_prices) do
+    first_stock_price = hd(stock_prices)
+
+    profit = Decimal.new(0)
+
+    Enum.reduce(
+      tl(stock_prices),
+      profit,
+      fn stock_price, profit_acc ->
+        potential_profit = Decimal.sub(stock_price.close, first_stock_price.close)
+
+        case Decimal.gt?(potential_profit, profit_acc) do
+          true ->
+            potential_profit
+
+          false ->
+            profit_acc
         end
       end
     )
@@ -177,16 +199,16 @@ defmodule StockerApi.StockPrices do
 
   # reusing the impl of calculate_single_trade_profit
   defp calculate_multi_trade_profit(stock_prices) do
-    profit = 0
+    profit = Decimal.new(0)
 
     stock_prices
     |> Enum.with_index()
     |> Enum.reduce(profit, fn {_stock_price, index}, acc ->
-      single_trade =
+      profit =
         Enum.slice(stock_prices, index..-1//1)
-        |> calculate_single_trade_profit()
+        |> temp()
 
-      Decimal.add(acc, single_trade.max_profit)
+      Decimal.add(acc, profit)
     end)
   end
 end

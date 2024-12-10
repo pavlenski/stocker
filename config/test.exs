@@ -9,9 +9,10 @@ config :stocker_api, StockerApi.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "stocker_api_test#{System.get_env("MIX_TEST_PARTITION")}",
+  # database: "stocker_api_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "stocker_api_test",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  pool_size: 10
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
