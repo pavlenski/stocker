@@ -20,11 +20,11 @@ if needed, run `./run reset` to drop, create, migrate and reseed the database as
 
 ### testing
 
-for now, the container has to be running in order to run tests (either with `docker compose up` or `./run init`)
+for now, the container has to be running in order to run tests (either with `docker compose up` or `./run init`) \
 to run the tests, run `./run test`
 
-unfortunately, after running the tests & closing the container (`docker compose down`),
-the database has to be reset with `./run reset`
+unfortunately, after running the tests & closing the container (`docker compose down`), \
+the database has to be reset with `./run reset` \
 (i messed up the sandbox environment for integration testing with postgres)
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
