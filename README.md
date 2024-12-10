@@ -14,6 +14,10 @@ to initialize and build the project, run: `./run init`
     * server: `postgres`
     * database: `stocker_api_dev`
    
+### fetching dependencies
+
+if for some reason the deps weren't fetched upon `./run init`, you can run `./run deps.get`
+   
 ### reseting the database
 
 if needed, run `./run reset` to drop, create, migrate and reseed the database as a clean slate
