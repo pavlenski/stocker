@@ -17,7 +17,7 @@ defmodule StockerApiWeb.Router do
 
     get "/stocks/:ticker/trade-options", TradeOptionsController, :trade_options
 
-    post "/stocks/:id/import/csv", StockPriceImportController, :import_csv
+    post "/stocks/:id/import/csv/zipped", StockPriceImportController, :import_csv
   end
 
   # Enable Swoosh mailbox preview in development

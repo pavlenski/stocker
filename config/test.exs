@@ -8,7 +8,7 @@ import Config
 config :stocker_api, StockerApi.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: "postgres",
   # database: "stocker_api_test#{System.get_env("MIX_TEST_PARTITION")}",
   database: "stocker_api_test",
   pool: Ecto.Adapters.SQL.Sandbox,

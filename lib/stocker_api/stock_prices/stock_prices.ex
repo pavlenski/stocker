@@ -175,7 +175,7 @@ defmodule StockerApi.StockPrices do
     )
   end
 
-  defp temp(stock_prices) do
+  defp calculate_subset_max_profit(stock_prices) do
     first_stock_price = hd(stock_prices)
 
     profit = Decimal.new(0)
@@ -206,7 +206,7 @@ defmodule StockerApi.StockPrices do
     |> Enum.reduce(profit, fn {_stock_price, index}, acc ->
       profit =
         Enum.slice(stock_prices, index..-1//1)
-        |> temp()
+        |> calculate_subset_max_profit()
 
       Decimal.add(acc, profit)
     end)
