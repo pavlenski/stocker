@@ -3,84 +3,52 @@ defmodule StockerApiWeb.TradeOptionsController do
 
   alias StockerApi.StockPrices
   alias StockerApi.Stocks
+  alias StockerApiWeb.ErrorFallbackController
+
+  action_fallback ErrorFallbackController
 
   def trade_options(conn, %{"ticker" => ticker} = params) do
-    with {:ok, stock} <- Stocks.find_by_ticker(ticker),
-         {:ok, stock_prices} <- StockPrices.fetch_stock_prices(stock.id, params) do
-      single_trade = calculate_single_trade_profit(stock_prices)
-      multi_trade = calculate_multi_trade_profit(stock_prices)
+    with {:ok, %{former_date_from: from, latter_date_to: to} = date_ranges} <-
+           extract_and_validate_date_ranges(params),
+         {:ok, stock} <- Stocks.find_by_ticker(ticker),
+         {:ok, stock_prices} <- StockPrices.fetch_stock_prices(stock.id, from, to) do
+      response =
+        StockPrices.calculate_trading_options(stock_prices, date_ranges)
 
       conn
       |> put_status(:ok)
       |> json(%{
         stock: stock,
-        # stock_prices: stock_prices,
-        single_trade: single_trade,
-        multi_trade: multi_trade,
-        params: params
+        params: params,
+        current_dates: response.current,
+        former_dates: response.former,
+        latter_dates: response.latter
       })
     end
   end
 
-  defp calculate_single_trade_profit(stock_prices) do
-    first_stock_price = hd(stock_prices)
+  defp extract_and_validate_date_ranges(%{"date_from" => date_from, "date_to" => date_to}) do
+    with {:ok, date_from} <- Date.from_iso8601(date_from),
+         {:ok, date_to} <- Date.from_iso8601(date_to) do
+      date_diff_in_days = Date.diff(date_to, date_from)
 
-    # accumulator, will be passed through the reduce function,
-    # equaling in the final result once populated
-    acc =
-      %{
-        max_profit: 0,
-        buy_date: first_stock_price.date,
-        buy_date_close: first_stock_price.close,
-        sell_date: nil,
-        sell_date_close: 0
-      }
+      {:ok,
+       %{
+         current_date_from: date_from,
+         current_date_to: date_to,
+         former_date_from: Date.add(date_from, -(date_diff_in_days + 1)),
+         former_date_to: Date.add(date_from, -1),
+         latter_date_from: Date.add(date_to, 1),
+         latter_date_to: Date.add(date_to, date_diff_in_days + 1)
+       }}
+    else
+      {:error, :invalid_format} ->
+        {:error, "Invalid date formats"}
 
-    Enum.reduce(
-      # we start from the second element for the algorithm, get the remaining tail of the list
-      tl(stock_prices),
-      acc,
-      fn stock_price, acc ->
-        # using these here to avoid further logic nesting inside the true -> statement
-        {new_min_date, new_min_close} =
-          case Decimal.gt?(acc.buy_date_close, stock_price.close) do
-            true ->
-              {stock_price.date, stock_price.close}
-
-            false ->
-              {acc.buy_date, acc.buy_date_close}
-          end
-
-        profit = Decimal.sub(stock_price.close, new_min_close)
-
-        # only in case our newly calculated profit is higher, shall we update the accumulator
-        if profit > acc.max_profit do
-          %{
-            max_profit: profit,
-            buy_date: new_min_date,
-            buy_date_close: new_min_close,
-            sell_date: stock_price.date,
-            sell_date_close: stock_price.close
-          }
-        else
-          acc
-        end
-      end
-    )
+      {:error, :invalid_date} ->
+        {:error, "Invalid dates"}
+    end
   end
 
-  # reusing the impl of calculate_single_trade_profit
-  defp calculate_multi_trade_profit(stock_prices) do
-    profit = 0
-
-    stock_prices
-    |> Enum.with_index()
-    |> Enum.reduce(profit, fn {_stock_price, index}, acc ->
-      single_trade =
-        Enum.slice(stock_prices, index..-1//1)
-        |> calculate_single_trade_profit()
-
-      Decimal.add(acc, single_trade.max_profit)
-    end)
-  end
+  defp extract_and_validate_date_ranges(_invalid_params), do: {:error, "Invalid date params"}
 end
