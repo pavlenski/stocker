@@ -12,7 +12,6 @@ defmodule StockerApiWeb.TradeOptionsController do
            extract_and_validate_date_ranges(params),
          {:ok, stock} <- Stocks.find_by_ticker(ticker),
          {:ok, stock_prices} <- StockPrices.fetch_stock_prices(stock.id, from, to) do
-
       response =
         StockPrices.calculate_trading_options(stock_prices, date_ranges)
 
