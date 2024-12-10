@@ -5,6 +5,7 @@
 # }
 function init {
   docker compose -f docker-compose.yml build
+  docker compose run app mix deps.get
   docker compose run app mix ecto.reset
   docker compose up
 }
