@@ -32,7 +32,7 @@ the database has to be reset with `./run reset` \
 ### stocks
 
 **GET** ```http://localhost:4000/api/stocks``` \
-**POST** ```http://localhost:4000/api/stocks``` \
+**POST** ```http://localhost:4000/api/stocks``` 
 
 payload:
 
@@ -53,9 +53,9 @@ payload:
 ```
 {
 	"stock": {
-		"name": "KupujemProdajem",
-		"ticker": "KPKP",
-		"created_at": "1999-07-15"
+		"name": "ProdajemKupujem",
+		"ticker": "PKPK",
+		"created_at": "2002-07-15"
 	}
 }
 ```
