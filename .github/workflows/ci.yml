@@ -41,15 +41,46 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+          POSTGRES_DB: stocker_api_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    env:
+      MIX_ENV: test
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Start Services
-        run: docker compose -f docker-compose.yml up -d
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1.16
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
+          otp-version: ${{ env.OTP_VERSION_SPEC }}
 
-      - name: Run Tests
-        run: docker compose -f docker-compose.yml exec -e "MIX_ENV=test" app mix citest
+      - name: Install dependencies
+        run: mix deps.get
 
-      - name: Tear Down Services
-        if: always()
-        run: docker compose -f docker-compose.yml down
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run tests
+        env:
+          MIX_ENV: test
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run:
+          mix citest
