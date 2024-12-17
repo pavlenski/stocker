@@ -9,7 +9,6 @@ config :stocker_api, StockerApi.Repo,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("POSTGRES_HOST", "postgres"),
-  # database: "stocker_api_test#{System.get_env("MIX_TEST_PARTITION")}",
   database: System.get_env("POSTGRES_DB", "stocker_api_test"),
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10

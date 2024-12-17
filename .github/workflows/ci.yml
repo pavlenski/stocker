@@ -75,6 +75,9 @@ jobs:
       - name: Compile dependencies
         run: mix deps.compile
 
+      - name: Debug Environment Variables
+      run: env
+
       - name: Run tests
         env:
           MIX_ENV: test
@@ -82,5 +85,6 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-        run:
+        run: |
+          mix ecto.setup
           mix citest
