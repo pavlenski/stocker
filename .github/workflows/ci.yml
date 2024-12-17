@@ -85,9 +85,9 @@ jobs:
             sleep 1
           done
           echo "PostgreSQL is up and running!"
-      env:
-        PGUSER: postgres
-        PGPASSWORD: postgres
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
 
       - name: Run tests
         env:
