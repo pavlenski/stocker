@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# function test {
-#   docker compose -f docker-compose.yml exec -e "MIX_ENV=test" app mix test
-# }
 function init {
   docker compose -f docker-compose.yml build
   docker compose run app mix deps.get
@@ -11,7 +8,11 @@ function init {
 }
 
 function test {
-  docker compose exec -e "MIX_ENV=test" app mix test
+  docker compose -f docker-compose.yml run -e "MIX_ENV=test" app mix test
+}
+
+function test.live {
+  docker compose -f docker-compose.yml exec -e "MIX_ENV=test" app mix test
 }
 
 function reset {

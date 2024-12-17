@@ -2,9 +2,14 @@ name: Elixir CI
 
 on:
   push:
-    branches: ['master']
+    branches: 
+      - master
+      - develop
+
   pull_request:
-    branches: ['master']
+    branches: 
+      - master
+      - develop
 
 env:
   MIX_ENV: test
@@ -31,3 +36,66 @@ jobs:
         run: mix deps.compile
       - name: Check formatted
         run: mix format --check-formatted
+
+  test: 
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          # POSTGRES_HOST_AUTH_METHOD: 'trust'
+          POSTGRES_DB: stocker_api_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1.16
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
+          otp-version: ${{ env.OTP_VERSION_SPEC }}
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Debug Environment Variables
+        run: env
+
+      - name: Wait for PostgreSQL
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          until pg_isready -h postgres -p 5432; do
+            sleep 1
+          done
+          echo "PostgreSQL is up and running!"
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+
+      - name: Run tests
+        env:
+          MIX_ENV: test
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run: |
+          mix ecto.setup
+          mix citest
