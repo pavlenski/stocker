@@ -2,9 +2,14 @@ name: Elixir CI
 
 on:
   push:
-    branches: ['master']
+    branches: 
+      - master
+      - develop
+
   pull_request:
-    branches: ['master']
+    branches: 
+      - master
+      - develop
 
 env:
   MIX_ENV: test
@@ -31,3 +36,20 @@ jobs:
         run: mix deps.compile
       - name: Check formatted
         run: mix format --check-formatted
+
+  test: 
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Start Services
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Run Tests
+        run: docker compose -f docker-compose.yml exec -e "MIX_ENV=test" app mix citest
+
+      - name: Tear Down Services
+        if: always()
+        run: docker compose -f docker-compose.yml down
