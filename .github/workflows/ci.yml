@@ -76,7 +76,7 @@ jobs:
         run: mix deps.compile
 
       - name: Debug Environment Variables
-      run: env
+        run: env
 
       - name: Run tests
         env:
