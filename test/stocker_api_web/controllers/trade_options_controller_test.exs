@@ -9,16 +9,18 @@ defmodule StockerApiWeb.TradeOptionsControllerTest do
     {:ok, %{conn: params.conn}}
   end
 
-  describe "dummy" do
-    test "testing dummy!", %{conn: _conn} do
-      stock = insert(:stock)
-      stock2 = insert(:stock)
+  describe "creating & testing stocks" do
+    test "create stocks", _params do
+      s1 = insert(:stock)
+      s2 = insert(:stock)
 
       stocks = Repo.all(Stock)
-      s = Repo.get(Stock, stock2.id)
 
       assert length(stocks) == 2
-      assert s.ticker == "TCK2"
+      assert %{"ticker" => t1} = Repo.get(Stock, s1.id)
+      assert %{"ticker" => t2} = Repo.get(Stock, s2.id)
+      assert t1 == "TCK0"
+      assert t2 == "TCK1"
     end
   end
 
