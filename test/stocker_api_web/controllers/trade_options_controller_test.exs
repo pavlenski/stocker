@@ -1,7 +1,7 @@
 defmodule StockerApiWeb.TradeOptionsControllerTest do
   use StockerApiWeb.ConnCase
 
-  # import StockerApi.Factory
+  import StockerApi.Factory
   alias StockerApi.Stocks.Stock
   alias StockerApi.Repo
 
@@ -11,19 +11,14 @@ defmodule StockerApiWeb.TradeOptionsControllerTest do
 
   describe "dummy" do
     test "testing dummy!", %{conn: _conn} do
-      stock =
-        %Stock{}
-        |> Stock.create_changeset(%{
-          name: "Test2",
-          ticker: "TTS2",
-          created_at: "2013-05-18"
-        })
-        |> Repo.insert!()
+      stock = insert(:stock)
+      stock2 = insert(:stock)
 
       stocks = Repo.all(Stock)
-      s = Repo.get(Stock, stock.id)
-      assert length(stocks) == 1
-      assert s.ticker == "TTS2"
+      s = Repo.get(Stock, stock2.id)
+
+      assert length(stocks) == 2
+      assert s.ticker == "TCK2"
     end
   end
 
