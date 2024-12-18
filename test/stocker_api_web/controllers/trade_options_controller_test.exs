@@ -1,57 +1,29 @@
 defmodule StockerApiWeb.TradeOptionsControllerTest do
   use StockerApiWeb.ConnCase
 
-  import StockerApi.Factory
+  # import StockerApi.Factory
   alias StockerApi.Stocks.Stock
   alias StockerApi.Repo
 
   setup params do
-    IO.inspect(params)
-
-    IO.inspect(Repo.config())
-
-    # %Stock{}
-    # |> Stock.create_changeset(%{
-    #   name: "Test1",
-    #   ticker: "TTST",
-    #   created_at: "2012-05-18"
-    # })
-    # |> Repo.insert!()
-
-    # stocks = Repo.all(Stock)
-    # IO.inspect(stocks)
-
-    # config = Testcontainers.RedisContainer.new()
-    # {:ok, container} = Testcontainers.start_container(config)
-    # ExUnit.Callbacks.on_exit(fn -> Testcontainers.stop_container(container.container_id) end)
-    # {:ok, %{redis: container}}
-
-    # config =
-    #   PostgresContainer.new()
-    #   |> PostgresContainer.with_database("stocker_api_test")
-    #   |> PostgresContainer.with_password("postgres")
-    #   |> PostgresContainer.with_user("postgres")
-    #   |> PostgresContainer.with_port(4443)
-
-    # {:ok, container} = Testcontainers.start_container(config)
-
-    # {:ok, %{postgres: container}}
+    {:ok, %{conn: params.conn}}
   end
 
   describe "dummy" do
-    test "testing dummy!", %{conn: conn} = params do
-      IO.inspect("1 2 3 testing")
+    test "testing dummy!", %{conn: _conn} do
+      stock =
+        %Stock{}
+        |> Stock.create_changeset(%{
+          name: "Test2",
+          ticker: "TTS2",
+          created_at: "2013-05-18"
+        })
+        |> Repo.insert!()
 
-      # stock = insert(:stock)
-
-      # IO.inspect(conn)
-      # IO.puts("  - - - - - - - - - - - - - - - -  -- - -  - --")
-      # IO.inspect(params)
-      # price1 = insert(:stock_price, stock: stock, close: Decimal.new(1), date: ~D[2020-10-10])
-      # IO.inspect(stock)
-      # IO.inspect(price1)
-
-      assert 1 == 1
+      stocks = Repo.all(Stock)
+      s = Repo.get(Stock, stock.id)
+      assert length(stocks) == 1
+      assert s.ticker == "TTS2"
     end
   end
 

@@ -11,11 +11,9 @@ config :testcontainers, enabled: true
 config :stocker_api, StockerApi.Repo,
   username: System.get_env("DB_USER") || "postgres",
   password: System.get_env("DB_PASSWORD") || "postgres",
-# used to be postgres instead of localhost
   hostname: System.get_env("DB_HOST") || "localhost",
   port: System.get_env("DB_PORT") || "5432",
   database: "stocker_api_test#{System.get_env("MIX_TEST_PARTITION")}",
-  # database: "stocker_api_test",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
