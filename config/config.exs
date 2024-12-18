@@ -23,15 +23,6 @@ config :stocker_api, StockerApiWeb.Endpoint,
   pubsub_server: StockerApi.PubSub,
   live_view: [signing_salt: "9FT0HIJG"]
 
-# Configures phoenix swagger
-config :stocker_api, :phoenix_swagger,
-  swagger_files: %{
-    "priv/static/swagger.json" => [
-      router: StockerApiWeb.Router,
-      endpoint: StockerApiWeb.Endpoint
-    ]
-  }
-
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -49,7 +40,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 # TODO: Should i configure this?
-config :phoenix_swagger, json_library: Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
