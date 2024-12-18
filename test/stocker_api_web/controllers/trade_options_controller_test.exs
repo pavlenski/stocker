@@ -17,8 +17,8 @@ defmodule StockerApiWeb.TradeOptionsControllerTest do
       stocks = Repo.all(Stock)
 
       assert length(stocks) == 2
-      assert %{"ticker" => t1} = Repo.get(Stock, s1.id)
-      assert %{"ticker" => t2} = Repo.get(Stock, s2.id)
+      assert %{ticker: t1} = Repo.get(Stock, s1.id)
+      assert %{ticker: t2} = Repo.get(Stock, s2.id)
       assert t1 == "TCK0"
       assert t2 == "TCK1"
     end
