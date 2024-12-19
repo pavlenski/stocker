@@ -2,6 +2,27 @@ defmodule StockerApiWeb.TradeOptionsControllerTest do
   use StockerApiWeb.ConnCase
 
   import StockerApi.Factory
+  alias StockerApi.Stocks.Stock
+  alias StockerApi.Repo
+
+  setup params do
+    {:ok, %{conn: params.conn}}
+  end
+
+  describe "creating & testing stocks" do
+    test "create stocks", _params do
+      s1 = insert(:stock, ticker: "GGG1")
+      s2 = insert(:stock, ticker: "GGG2")
+
+      stocks = Repo.all(Stock)
+
+      assert length(stocks) == 2
+      assert %{ticker: t1} = Repo.get(Stock, s1.id)
+      assert %{ticker: t2} = Repo.get(Stock, s2.id)
+      assert t1 == "GGG1"
+      assert t2 == "GGG2"
+    end
+  end
 
   describe "GET /stocks/:ticker/trade-options" do
     test "return stock trading options", %{conn: conn} do

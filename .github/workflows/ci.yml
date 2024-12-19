@@ -2,9 +2,13 @@ name: Elixir CI
 
 on:
   push:
-    branches: ['master']
+    branches:
+    - master
+    - develop
   pull_request:
-    branches: ['master']
+    branches: 
+    - master
+    - develop
 
 env:
   MIX_ENV: test
@@ -31,3 +35,22 @@ jobs:
         run: mix deps.compile
       - name: Check formatted
         run: mix format --check-formatted
+
+  run-testcontainers:
+    name: Run Testcontainers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1.16
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
+          otp-version: ${{ env.OTP_VERSION_SPEC }}
+      - name: Install dependencies
+        run: mix deps.get
+      - name: Compile dependencies
+        run: mix deps.compile
+      - name: Run testcontainers
+        run: mix testcontainers.test

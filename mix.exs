@@ -46,7 +46,8 @@ defmodule StockerApi.MixProject do
       {:bandit, "~> 1.5"},
       {:csv, "~> 3.0"},
       {:unzip, "~> 0.12.0"},
-      {:ex_machina, "~> 2.8.0"}
+      {:ex_machina, "~> 2.8.0"},
+      {:testcontainers, "~> 1.11.7"}
     ]
   end
 

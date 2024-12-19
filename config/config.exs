@@ -8,6 +8,7 @@
 import Config
 
 config :stocker_api,
+  # TODO: maybe add new test repo here
   ecto_repos: [StockerApi.Repo],
   generators: [timestamp_type: :utc_datetime]
 
@@ -38,6 +39,7 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+# TODO: Should i configure this?
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
